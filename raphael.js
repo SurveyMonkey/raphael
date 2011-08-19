@@ -4323,7 +4323,7 @@ window.Raphael.svg && function (R) {
     R.prototype.renderfix = function () {
         var cnvs = this.canvas,
             s = cnvs.style,
-            pos = cnvs.getScreenCTM(),
+            pos = cnvs.getScreenCTM() || cnvs.createSVGMatrix(),
             left = -pos.e % 1,
             top = -pos.f % 1;
         if (left || top) {
@@ -5329,4 +5329,15 @@ window.Raphael.vml && function (R) {
         }
         return true;
     };
+    var setproto = R.st;
+    for (var method in elproto) if (elproto[has](method) && !setproto[has](method)) {
+        setproto[method] = (function (methodname) {
+            return function () {
+                var arg = arguments;
+                return this.forEach(function (el) {
+                    el[methodname].apply(el, arg);
+                });
+            };
+        })(method);
+    }
 }(window.Raphael);
